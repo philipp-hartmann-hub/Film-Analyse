@@ -26,7 +26,39 @@ function headers(): HeadersInit {
   };
 }
 
+function toUrl(value: string, base?: string): URL {
+  try {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) {
+      return new URL(value);
+    }
+    if (value.startsWith("//")) {
+      return new URL(`https:${value}`);
+    }
+    if (base) {
+      return new URL(value, base);
+    }
+    return new URL(`https://${value}`);
+  } catch {
+    throw new Error("Ungültiger Link oder Username.");
+  }
+}
+
 export async function resolveUsername(input: string): Promise<string> {
+  try {
+    return await resolveUsernameInner(input);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Safari/WebKit: "The string did not match the expected pattern."
+      if (/expected pattern|invalid url|failed to construct/i.test(error.message)) {
+        throw new Error("Ungültiger Link oder Username.");
+      }
+      throw error;
+    }
+    throw new Error("Ungültiger Link oder Username.");
+  }
+}
+
+async function resolveUsernameInner(input: string): Promise<string> {
   const trimmed = input.trim();
   if (!trimmed) {
     throw new Error("Bitte einen Letterboxd-Link oder Username eingeben.");
@@ -36,22 +68,31 @@ export async function resolveUsername(input: string): Promise<string> {
     return trimmed.replace(/^@/, "").toLowerCase();
   }
 
-  let url: URL;
-  try {
-    url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
-  } catch {
-    throw new Error("Ungültiger Link oder Username.");
-  }
-
+  const url = toUrl(trimmed);
   const host = url.hostname.replace(/^www\./, "");
 
   if (host === "boxd.it" || host.endsWith(".boxd.it")) {
+    // Prefer following redirects — final res.url is the profile page.
+    try {
+      const followed = await fetchWithRetry(url.toString(), {
+        redirect: "follow",
+        method: "GET",
+      });
+      if (followed.url && followed.url !== url.toString()) {
+        return resolveUsernameInner(followed.url);
+      }
+    } catch {
+      // fall through to manual redirect handling
+    }
+
     const res = await fetchWithRetry(url.toString(), { redirect: "manual" });
     const location = res.headers.get("location");
     if (!location) {
-      throw new Error("Kurzlink konnte nicht aufgelöst werden.");
+      throw new Error(
+        "Kurzlink konnte nicht aufgelöst werden. Bitte den letterboxd.com-Link oder Username nutzen.",
+      );
     }
-    return resolveUsername(location);
+    return resolveUsernameInner(toUrl(location, url.toString()).toString());
   }
 
   if (!host.includes("letterboxd.com")) {

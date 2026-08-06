@@ -34,11 +34,15 @@ export function Analyzer() {
   const [report, setReport] = useState<AnalysisReport | null>(null);
 
   async function fetchFilmsPage(user: string, page: number) {
-    const res = await fetch(
-      `/api/films?username=${encodeURIComponent(user)}&page=${page}`,
-    );
+    const res = await fetch("/api/films", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: user, page }),
+    });
     const data = (await res.json()) as FilmsResponse;
-    if (!res.ok) throw new Error(data.error || "Filme konnten nicht geladen werden.");
+    if (!res.ok) {
+      throw new Error(data.error || "Filme konnten nicht geladen werden.");
+    }
     return data;
   }
 
@@ -147,6 +151,10 @@ export function Analyzer() {
           <div className="search-row">
             <input
               id="letterboxd"
+              type="text"
+              inputMode="url"
+              autoComplete="off"
+              spellCheck={false}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="https://letterboxd.com/name/ · boxd.it/… · username"
