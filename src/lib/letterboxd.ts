@@ -1,20 +1,11 @@
+import "server-only";
 import * as cheerio from "cheerio";
+import type { FilmEntry } from "@/lib/film";
+
+export type { FilmEntry, EnrichedFilm } from "@/lib/film";
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
-
-export type FilmEntry = {
-  slug: string;
-  title: string;
-  year: number | null;
-  rating: number | null;
-};
-
-export type EnrichedFilm = FilmEntry & {
-  genres: string[];
-  directors: string[];
-  description: string;
-};
 
 function headers(): HeadersInit {
   return {
@@ -234,7 +225,12 @@ export async function fetchDisplayName(username: string): Promise<string> {
     const $ = cheerio.load(html);
     const og = $('meta[property="og:title"]').attr("content");
     if (og) {
-      return og.replace(/\s*[·•|].*$/, "").replace(/'s profile$/i, "").trim();
+      return og
+        .replace(/\s*[·•|].*$/, "")
+        .replace(/'s profile$/i, "")
+        .replace(/’s profile$/i, "")
+        .replace(/\s+profile$/i, "")
+        .trim();
     }
     const h1 = $("h1").first().text().trim();
     if (h1) return h1;
@@ -334,14 +330,4 @@ export function parseFilmDetails(html: string): {
 export async function fetchFilmDetails(slug: string) {
   const html = await fetchHtml(`https://letterboxd.com/film/${slug}/`);
   return parseFilmDetails(html);
-}
-
-export function formatStars(stars: number): string {
-  const full = Math.floor(stars);
-  const half = stars % 1 !== 0;
-  return `${"★".repeat(full)}${half ? "½" : ""}`;
-}
-
-export function formatAvg(n: number): string {
-  return n.toFixed(1).replace(".", ",");
 }

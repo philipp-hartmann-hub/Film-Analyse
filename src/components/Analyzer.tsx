@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { StatsReport } from "@/components/StatsReport";
 import { buildAnalysis, type AnalysisReport } from "@/lib/analysis";
-import type { EnrichedFilm, FilmEntry } from "@/lib/letterboxd";
+import type { EnrichedFilm, FilmEntry } from "@/lib/film";
 
 type FilmsResponse = {
   films: FilmEntry[];
@@ -136,7 +136,11 @@ export function Analyzer() {
       setReport(analysis);
       setStatus("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unbekannter Fehler");
+      const raw = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const message = /expected pattern|invalid url|failed to construct/i.test(raw)
+        ? "Ungültiger Link. Bitte Username oder letterboxd.com-Link versuchen."
+        : raw;
+      setError(message);
       setStatus("");
     } finally {
       setLoading(false);
@@ -152,8 +156,9 @@ export function Analyzer() {
             <input
               id="letterboxd"
               type="text"
-              inputMode="url"
               autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
               spellCheck={false}
               value={input}
               onChange={(e) => setInput(e.target.value)}

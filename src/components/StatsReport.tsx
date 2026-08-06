@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatAvg, formatStars } from "@/lib/letterboxd";
+import { formatAvg, formatStars } from "@/lib/film";
 import type { AnalysisReport, BarItem } from "@/lib/analysis";
 
 function Dots() {

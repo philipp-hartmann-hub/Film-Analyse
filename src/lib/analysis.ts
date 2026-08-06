@@ -2,7 +2,7 @@ import {
   formatAvg,
   formatStars,
   type EnrichedFilm,
-} from "@/lib/letterboxd";
+} from "@/lib/film";
 
 export type BarItem = {
   label: string;
