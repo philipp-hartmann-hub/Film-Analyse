@@ -30,44 +30,82 @@ function headers(): HeadersInit {
   };
 }
 
-export function parseUsername(input: string): string {
+/** Resolve boxd.it / letterboxd URLs or plain usernames to a username. */
+export async function resolveUsername(input: string): Promise<string> {
   const trimmed = input.trim();
   if (!trimmed) {
     throw new Error("Bitte einen Letterboxd-Link oder Username eingeben.");
   }
 
-  try {
-    if (trimmed.includes("letterboxd.com") || trimmed.startsWith("http")) {
-      const url = new URL(
-        trimmed.startsWith("http") ? trimmed : `https://${trimmed}`,
-      );
-      if (!url.hostname.includes("letterboxd.com")) {
-        throw new Error("Ungültiger Letterboxd-Link.");
-      }
-      const part = url.pathname.split("/").filter(Boolean)[0];
-      if (!part || part === "film" || part === "films" || part === "list") {
-        throw new Error("Kein Username im Link gefunden.");
-      }
-      return part.toLowerCase();
-    }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("Letterboxd")) {
-      throw error;
-    }
-    // fall through to username validation
+  // Plain username
+  if (/^[a-zA-Z0-9_]+$/.test(trimmed.replace(/^@/, ""))) {
+    return trimmed.replace(/^@/, "").toLowerCase();
   }
 
-  const username = trimmed.replace(/^@/, "").replace(/\/+$/, "");
+  let url: URL;
+  try {
+    url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+  } catch {
+    throw new Error("Ungültiger Link oder Username.");
+  }
+
+  const host = url.hostname.replace(/^www\./, "");
+
+  // Short links → follow redirect to letterboxd.com/username/
+  if (host === "boxd.it" || host.endsWith(".boxd.it")) {
+    const res = await fetch(url.toString(), {
+      method: "GET",
+      redirect: "manual",
+      headers: headers(),
+    });
+    const location = res.headers.get("location");
+    if (!location) {
+      throw new Error("Kurzlink konnte nicht aufgelöst werden.");
+    }
+    return resolveUsername(location);
+  }
+
+  if (!host.includes("letterboxd.com")) {
+    throw new Error("Ungültiger Letterboxd-Link.");
+  }
+
+  const parts = url.pathname.split("/").filter(Boolean);
+  const reserved = new Set([
+    "film",
+    "films",
+    "list",
+    "lists",
+    "actor",
+    "director",
+    "writer",
+    "settings",
+    "search",
+    "reviews",
+    "likes",
+  ]);
+  const username = parts[0];
+  if (!username || reserved.has(username.toLowerCase())) {
+    throw new Error("Kein Username im Link gefunden.");
+  }
   if (!/^[a-zA-Z0-9_]+$/.test(username)) {
     throw new Error("Ungültiger Username.");
   }
   return username.toLowerCase();
 }
 
+/** Sync parser for cases where we already have a username (no network). */
+export function parseUsername(input: string): string {
+  const trimmed = input.trim().replace(/^@/, "");
+  if (/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+  throw new Error("Ungültiger Username.");
+}
+
 async function fetchHtml(url: string): Promise<string> {
   const res = await fetch(url, {
     headers: headers(),
-    next: { revalidate: 0 },
+    cache: "no-store",
   });
 
   if (res.status === 404) {
@@ -80,9 +118,9 @@ async function fetchHtml(url: string): Promise<string> {
   }
 
   const html = await res.text();
-  if (html.includes("Just a moment...") && html.includes("Cloudflare")) {
+  if (html.includes("Just a moment...") && html.includes("challenge")) {
     throw new Error(
-      "Letterboxd hat die Anfrage blockiert (Cloudflare). Bitte kurz warten und erneut versuchen.",
+      "Letterboxd hat die Anfrage blockiert (Cloudflare). Bitte ZIP-Export nutzen oder später erneut versuchen.",
     );
   }
   return html;
@@ -146,8 +184,8 @@ export async function fetchFilmsPage(
   const { films, maxPage } = parseFilmsPage(html);
 
   if (page === 1 && films.length === 0) {
-    // empty library or invalid profile that returned a page without posters
-    const looksLikeProfile = html.includes(`/${username}/`) || html.includes("profile");
+    const looksLikeProfile =
+      html.includes(`/${username}/`) || html.toLowerCase().includes("profile");
     if (!looksLikeProfile) {
       throw new Error("Profil nicht gefunden.");
     }
@@ -183,24 +221,58 @@ export async function fetchFilmGenres(slug: string): Promise<string[]> {
   return parseGenresFromFilmPage(html);
 }
 
+/** TMDB genre enrichment (optional, needs TMDB_API_KEY). */
+export async function fetchTmdbGenres(
+  title: string,
+  year: number | null,
+  apiKey: string,
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    query: title,
+    include_adult: "false",
+  });
+  if (year) params.set("year", String(year));
+
+  const searchRes = await fetch(
+    `https://api.themoviedb.org/3/search/movie?${params}`,
+    { cache: "no-store" },
+  );
+  if (!searchRes.ok) return [];
+  const searchJson = (await searchRes.json()) as {
+    results?: Array<{ id: number; title: string; release_date?: string }>;
+  };
+  const hit = searchJson.results?.[0];
+  if (!hit) return [];
+
+  const detailRes = await fetch(
+    `https://api.themoviedb.org/3/movie/${hit.id}?api_key=${apiKey}`,
+    { cache: "no-store" },
+  );
+  if (!detailRes.ok) return [];
+  const detail = (await detailRes.json()) as {
+    genres?: Array<{ name: string }>;
+  };
+  return (detail.genres ?? []).map((g) => g.name);
+}
+
 export function buildRatingDistribution(films: FilmEntry[]): RatingBucket[] {
-  const counts = new Map<number, number>();
-  for (let stars = 0.5; stars <= 5; stars += 0.5) {
-    counts.set(stars, 0);
-  }
+  const steps = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+  const counts = new Map<number, number>(steps.map((s) => [s, 0]));
 
   for (const film of films) {
     if (film.rating == null) continue;
-    counts.set(film.rating, (counts.get(film.rating) ?? 0) + 1);
+    const key = Math.round(film.rating * 2) / 2;
+    if (counts.has(key)) {
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
   }
 
-  return [...counts.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([stars, count]) => ({
-      stars,
-      label: formatStars(stars),
-      count,
-    }));
+  return steps.map((stars) => ({
+    stars,
+    label: formatStars(stars),
+    count: counts.get(stars) ?? 0,
+  }));
 }
 
 export function formatStars(stars: number): string {
@@ -232,4 +304,91 @@ export function ratingStats(films: FilmEntry[]) {
     unratedFilms: films.length - rated.length,
     averageRating: rated.length ? Number((sum / rated.length).toFixed(2)) : null,
   };
+}
+
+export function slugFromLetterboxdUri(uri: string): string | null {
+  const match = uri.match(/letterboxd\.com\/film\/([^/]+)/i);
+  return match ? match[1] : null;
+}
+
+/** Parse Letterboxd ratings.csv / watched.csv content. */
+export function parseLetterboxdCsv(csvText: string): FilmEntry[] {
+  const lines = csvText.replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return [];
+
+  const headersRow = splitCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
+  const nameIdx = headersRow.findIndex((h) => h === "name");
+  const yearIdx = headersRow.findIndex((h) => h === "year");
+  const uriIdx = headersRow.findIndex(
+    (h) => h === "letterboxd uri" || h === "uri",
+  );
+  const ratingIdx = headersRow.findIndex((h) => h === "rating");
+
+  if (nameIdx < 0) return [];
+
+  const films: FilmEntry[] = [];
+  const seen = new Set<string>();
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitCsvLine(lines[i]);
+    const title = cols[nameIdx]?.trim();
+    if (!title) continue;
+
+    const yearRaw = yearIdx >= 0 ? cols[yearIdx]?.trim() : "";
+    const year = yearRaw && /^\d{4}$/.test(yearRaw) ? Number(yearRaw) : null;
+    const uri = uriIdx >= 0 ? cols[uriIdx]?.trim() : "";
+    const slug =
+      (uri && slugFromLetterboxdUri(uri)) ||
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+    const ratingRaw = ratingIdx >= 0 ? cols[ratingIdx]?.trim() : "";
+    const rating =
+      ratingRaw && !Number.isNaN(Number(ratingRaw))
+        ? Number(ratingRaw)
+        : null;
+
+    const key = slug || `${title}-${year ?? ""}`;
+    if (seen.has(key)) {
+      // Prefer row with rating if duplicate (ratings.csv + watched.csv)
+      const existing = films.find((f) => f.slug === slug);
+      if (existing && existing.rating == null && rating != null) {
+        existing.rating = rating;
+      }
+      continue;
+    }
+    seen.add(key);
+    films.push({ slug, title, year, rating });
+  }
+
+  return films;
+}
+
+function splitCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (ch === "," && !inQuotes) {
+      result.push(current);
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  result.push(current);
+  return result;
 }

@@ -11,7 +11,7 @@ export default function Home() {
           Outside the box
         </h1>
         <p className="mt-4 text-lg text-[var(--muted)] md:text-xl">
-          Ratings und Top-Genres deiner Bibliothek — ohne Pro-Abo.
+          Profil-Link oder ZIP-Export — Ratings und Top-Genres ohne Pro-Abo.
         </p>
       </header>
 

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchFilmsPage, parseUsername } from "@/lib/letterboxd";
+import {
+  fetchFilmsPage,
+  resolveUsername,
+} from "@/lib/letterboxd";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -9,7 +12,7 @@ export async function GET(request: NextRequest) {
     const input = request.nextUrl.searchParams.get("username") ?? "";
     const pageParam = request.nextUrl.searchParams.get("page") ?? "1";
     const page = Math.max(1, Number(pageParam) || 1);
-    const username = parseUsername(input);
+    const username = await resolveUsername(input);
 
     const data = await fetchFilmsPage(username, page);
     return NextResponse.json(data);

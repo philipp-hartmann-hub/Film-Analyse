@@ -4,7 +4,12 @@ Kostenlose Letterboxd-Auswertung: **Ratings** und **Top-Genres** — ohne Pro-Ab
 
 ## Idee
 
-Profil-Link oder Username eingeben → öffentliche Filmliste laden → Charts anzeigen.
+Zwei Wege:
+
+1. **Profil-Link / Username / boxd.it** → öffentliche Filmliste scrapen  
+2. **ZIP-Export** (Settings → Import & Export) → zuverlässiger, lokal geparst  
+
+Genres: Letterboxd-Filmseiten, optional **TMDB** (wie in der Claude-Auswertung).
 
 ## Lokal starten
 
@@ -13,18 +18,18 @@ npm install
 npm run dev
 ```
 
+Optional: `.env.local` mit `TMDB_API_KEY=` (kostenlos bei [TMDB](https://www.themoviedb.org/settings/api)).
+
 App: [http://localhost:3000](http://localhost:3000)
 
 ## Deploy auf Vercel
 
-1. Repo mit Vercel verbinden
-2. Framework: Next.js (Auto-Detect)
+1. Repo verbinden, Framework **Next.js**
+2. Optional Env: `TMDB_API_KEY`
 3. Deploy
-
-Keine Env-Vars nötig.
 
 ## Hinweise
 
-- Letterboxd hat keine öffentliche API — die App liest öffentliche HTML-Seiten.
-- Sehr große Bibliotheken: Ratings komplett, Genres für die neuesten 180 Filme (Vercel-Timeouts).
-- Cloudflare kann Anfragen zeitweise blockieren — dann kurz warten und erneut versuchen.
+- Letterboxd hat keine öffentliche API.
+- Bei Cloudflare-Blocks: ZIP-Export nutzen.
+- Genres-Fehler brechen die Ratings-Auswertung nicht mehr ab.

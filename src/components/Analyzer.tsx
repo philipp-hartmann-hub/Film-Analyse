@@ -1,10 +1,12 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
+import JSZip from "jszip";
 import { AnalysisDashboard } from "@/components/AnalysisDashboard";
 import {
   aggregateGenres,
   buildRatingDistribution,
+  parseLetterboxdCsv,
   ratingStats,
   type FilmEntry,
   type GenreCount,
@@ -22,19 +24,21 @@ type GenresResponse = {
   error?: string;
 };
 
-const PAGE_CONCURRENCY = 3;
-const GENRE_BATCH = 10;
-const MAX_GENRE_FILMS = 180;
+const PAGE_CONCURRENCY = 2;
+const GENRE_BATCH = 12;
+const MAX_GENRE_FILMS = 200;
 
 export function Analyzer() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [films, setFilms] = useState<FilmEntry[]>([]);
   const [genres, setGenres] = useState<GenreCount[]>([]);
   const [genreProgress, setGenreProgress] = useState({ done: 0, total: 0 });
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const ratings = useMemo(() => buildRatingDistribution(films), [films]);
   const stats = useMemo(() => ratingStats(films), [films]);
@@ -89,45 +93,71 @@ export function Analyzer() {
   }
 
   async function loadGenres(filmList: FilmEntry[]) {
-    const uniqueSlugs = [...new Set(filmList.map((f) => f.slug))].slice(
-      0,
-      MAX_GENRE_FILMS,
-    );
-
-    setGenreProgress({ done: 0, total: uniqueSlugs.length });
+    const subset = filmList.slice(0, MAX_GENRE_FILMS);
+    setGenreProgress({ done: 0, total: subset.length });
     setStatus(
-      uniqueSlugs.length < filmList.length
-        ? `Lade Genres für die neuesten ${uniqueSlugs.length} Filme…`
+      subset.length < filmList.length
+        ? `Lade Genres für ${subset.length} Filme…`
         : "Lade Genres…",
     );
 
     const collected: { slug: string; genres: string[] }[] = [];
+    let failures = 0;
 
-    for (let i = 0; i < uniqueSlugs.length; i += GENRE_BATCH) {
-      const batch = uniqueSlugs.slice(i, i + GENRE_BATCH);
-      const res = await fetch("/api/genres", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slugs: batch }),
+    for (let i = 0; i < subset.length; i += GENRE_BATCH) {
+      const batch = subset.slice(i, i + GENRE_BATCH);
+      try {
+        const res = await fetch("/api/genres", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ films: batch }),
+        });
+        const data = (await res.json()) as GenresResponse;
+        if (!res.ok) {
+          failures += batch.length;
+        } else {
+          for (const result of data.results) {
+            collected.push({ slug: result.slug, genres: result.genres });
+            if (result.error || result.genres.length === 0) failures += 1;
+          }
+        }
+      } catch {
+        failures += batch.length;
+      }
+
+      setGenreProgress({
+        done: Math.min(i + batch.length, subset.length),
+        total: subset.length,
       });
-      const data = (await res.json()) as GenresResponse;
-      if (!res.ok) {
-        throw new Error(data.error || "Genres konnten nicht geladen werden.");
-      }
-
-      for (const result of data.results) {
-        collected.push({ slug: result.slug, genres: result.genres });
-      }
-
-      setGenreProgress({ done: collected.length, total: uniqueSlugs.length });
       setGenres(aggregateGenres(collected));
-      setStatus(`Lade Genres… ${collected.length}/${uniqueSlugs.length}`);
+      setStatus(`Lade Genres… ${Math.min(i + batch.length, subset.length)}/${subset.length}`);
     }
+
+    if (collected.every((c) => c.genres.length === 0)) {
+      setWarning(
+        "Genres konnten nicht geladen werden (oft Cloudflare). Ratings bleiben sichtbar — oder ZIP-Export nutzen.",
+      );
+    } else if (failures > subset.length * 0.4) {
+      setWarning(
+        "Einige Genres fehlten. Die Top-Genres basieren auf den erfolgreich geladenen Filmen.",
+      );
+    }
+  }
+
+  async function runWithFilms(label: string, filmList: FilmEntry[]) {
+    if (filmList.length === 0) {
+      throw new Error("Keine Filme gefunden.");
+    }
+    setUsername(label);
+    setFilms(filmList);
+    await loadGenres(filmList);
+    setStatus("Fertig.");
   }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setWarning(null);
     setLoading(true);
     setFilms([]);
     setGenres([]);
@@ -156,6 +186,74 @@ export function Analyzer() {
     }
   }
 
+  async function onZipSelected(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setWarning(null);
+    setLoading(true);
+    setFilms([]);
+    setGenres([]);
+    setGenreProgress({ done: 0, total: 0 });
+    setUsername(null);
+    setStatus("Lese Export…");
+
+    try {
+      const buffer = await file.arrayBuffer();
+      let ratingsCsv = "";
+      let watchedCsv = "";
+
+      if (file.name.toLowerCase().endsWith(".zip")) {
+        const zip = await JSZip.loadAsync(buffer);
+        const names = Object.keys(zip.files);
+        const ratingsFile = names.find((n) =>
+          n.toLowerCase().endsWith("ratings.csv"),
+        );
+        const watchedFile = names.find((n) =>
+          n.toLowerCase().endsWith("watched.csv"),
+        );
+        if (!ratingsFile && !watchedFile) {
+          throw new Error(
+            "ZIP enthält keine ratings.csv / watched.csv. Bitte Letterboxd-Export verwenden.",
+          );
+        }
+        if (ratingsFile) {
+          ratingsCsv = await zip.files[ratingsFile].async("text");
+        }
+        if (watchedFile) {
+          watchedCsv = await zip.files[watchedFile].async("text");
+        }
+      } else if (file.name.toLowerCase().endsWith(".csv")) {
+        ratingsCsv = new TextDecoder().decode(buffer);
+      } else {
+        throw new Error("Bitte eine .zip oder .csv Datei wählen.");
+      }
+
+      const fromRatings = ratingsCsv ? parseLetterboxdCsv(ratingsCsv) : [];
+      const fromWatched = watchedCsv ? parseLetterboxdCsv(watchedCsv) : [];
+
+      // Merge: watched as base, overlay ratings
+      const bySlug = new Map<string, FilmEntry>();
+      for (const film of fromWatched) bySlug.set(film.slug, { ...film });
+      for (const film of fromRatings) {
+        const existing = bySlug.get(film.slug);
+        if (existing) {
+          existing.rating = film.rating ?? existing.rating;
+        } else {
+          bySlug.set(film.slug, { ...film });
+        }
+      }
+
+      const merged = [...bySlug.values()];
+      await runWithFilms("export", merged);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Export konnte nicht gelesen werden.");
+      setStatus("");
+    } finally {
+      setLoading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   return (
     <div>
       <form onSubmit={onSubmit} className="mt-10">
@@ -170,10 +268,9 @@ export function Analyzer() {
             id="letterboxd"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="https://letterboxd.com/deinname/ oder deinname"
+            placeholder="philipphartmann, letterboxd.com/… oder boxd.it/…"
             className="min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-[var(--panel)] px-4 py-3 text-[var(--ink)] outline-none ring-[var(--accent)] placeholder:text-[var(--muted)] focus:ring-2"
             disabled={loading}
-            required
           />
           <button
             type="submit"
@@ -183,12 +280,24 @@ export function Analyzer() {
             {loading ? "Analysiere…" : "Auswertung starten"}
           </button>
         </div>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          Öffentliche Watch-Liste wird ausgelesen. Genres kommen von den
-          Filmseiten (bei großen Bibliotheken die neuesten {MAX_GENRE_FILMS}{" "}
-          Filme).
-        </p>
       </form>
+
+      <div className="mt-6 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)]/70 p-5">
+        <p className="text-sm font-medium text-[var(--ink)]">
+          Alternativ: Letterboxd-Export (zuverlässiger)
+        </p>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          Settings → Import & Export → Export your data → ZIP hier hochladen.
+        </p>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".zip,.csv,application/zip,text/csv"
+          disabled={loading}
+          className="mt-3 block w-full text-sm text-[var(--muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--ink)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--panel)]"
+          onChange={(e) => onZipSelected(e.target.files?.[0] ?? null)}
+        />
+      </div>
 
       {(loading || status) && !error && (
         <p className="mt-4 text-sm text-[var(--muted)]" aria-live="polite">
@@ -199,6 +308,12 @@ export function Analyzer() {
       {error && (
         <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
+        </p>
+      )}
+
+      {warning && !error && (
+        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {warning}
         </p>
       )}
 
