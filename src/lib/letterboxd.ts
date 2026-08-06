@@ -17,107 +17,98 @@ function headers(): HeadersInit {
   };
 }
 
-function toUrl(value: string, base?: string): URL {
-  try {
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) {
-      return new URL(value);
-    }
-    if (value.startsWith("//")) {
-      return new URL(`https:${value}`);
-    }
-    if (base) {
-      return new URL(value, base);
-    }
-    return new URL(`https://${value}`);
-  } catch {
-    throw new Error("Ungültiger Link oder Username.");
-  }
-}
-
+/**
+ * Resolve profile input to a Letterboxd username.
+ * Avoids URL() where possible — WebKit/Safari throws
+ * "The string did not match the expected pattern." for some URL edge cases.
+ */
 export async function resolveUsername(input: string): Promise<string> {
-  try {
-    return await resolveUsernameInner(input);
-  } catch (error) {
-    if (error instanceof Error) {
-      // Safari/WebKit: "The string did not match the expected pattern."
-      if (/expected pattern|invalid url|failed to construct/i.test(error.message)) {
-        throw new Error("Ungültiger Link oder Username.");
-      }
-      throw error;
-    }
-    throw new Error("Ungültiger Link oder Username.");
-  }
-}
-
-async function resolveUsernameInner(input: string): Promise<string> {
   const trimmed = input.trim();
   if (!trimmed) {
     throw new Error("Bitte einen Letterboxd-Link oder Username eingeben.");
   }
 
-  if (/^[a-zA-Z0-9_]+$/.test(trimmed.replace(/^@/, ""))) {
-    return trimmed.replace(/^@/, "").toLowerCase();
+  const plain = trimmed.replace(/^@/, "");
+  if (/^[a-zA-Z0-9_]+$/.test(plain)) {
+    return plain.toLowerCase();
   }
 
-  const url = toUrl(trimmed);
-  const host = url.hostname.replace(/^www\./, "");
+  const normalized = trimmed.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+  const lower = normalized.toLowerCase();
 
-  if (host === "boxd.it" || host.endsWith(".boxd.it")) {
-    // Prefer following redirects — final res.url is the profile page.
-    try {
-      const followed = await fetchWithRetry(url.toString(), {
-        redirect: "follow",
-        method: "GET",
-      });
-      if (followed.url && followed.url !== url.toString()) {
-        return resolveUsernameInner(followed.url);
-      }
-    } catch {
-      // fall through to manual redirect handling
+  // boxd.it/{code} → follow redirect, extract username via regex
+  if (lower.startsWith("boxd.it/")) {
+    const href = trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
+    return resolveBoxdShortlink(href);
+  }
+
+  // letterboxd.com/{username}/...
+  const lb = lower.match(/^letterboxd\.com\/([a-zA-Z0-9_]+)(?:\/|$)/);
+  if (lb) {
+    const username = lb[1];
+    const reserved = new Set([
+      "film",
+      "films",
+      "list",
+      "lists",
+      "actor",
+      "director",
+      "writer",
+      "settings",
+      "search",
+      "reviews",
+      "likes",
+    ]);
+    if (reserved.has(username)) {
+      throw new Error("Kein Username im Link gefunden.");
     }
+    return username;
+  }
 
-    const res = await fetchWithRetry(url.toString(), { redirect: "manual" });
+  throw new Error(
+    "Ungültiger Link. Nutze Username, letterboxd.com/deinname oder boxd.it/…",
+  );
+}
+
+async function resolveBoxdShortlink(href: string): Promise<string> {
+  // Try Location header first (no body download)
+  try {
+    const res = await fetch(href, {
+      method: "GET",
+      redirect: "manual",
+      headers: headers(),
+      cache: "no-store",
+    });
     const location = res.headers.get("location");
-    if (!location) {
-      throw new Error(
-        "Kurzlink konnte nicht aufgelöst werden. Bitte den letterboxd.com-Link oder Username nutzen.",
-      );
-    }
-    return resolveUsernameInner(toUrl(location, url.toString()).toString());
+    const fromLocation = usernameFromLetterboxdHref(location);
+    if (fromLocation) return fromLocation;
+  } catch {
+    // continue
   }
 
-  if (!host.includes("letterboxd.com")) {
-    throw new Error("Ungültiger Letterboxd-Link.");
-  }
+  // Follow redirects and inspect final URL string with regex only
+  const followed = await fetchWithRetry(href, { redirect: "follow" });
+  const fromFinal = usernameFromLetterboxdHref(followed.url);
+  if (fromFinal) return fromFinal;
 
-  const parts = url.pathname.split("/").filter(Boolean);
-  const reserved = new Set([
-    "film",
-    "films",
-    "list",
-    "lists",
-    "actor",
-    "director",
-    "writer",
-    "settings",
-    "search",
-    "reviews",
-    "likes",
-  ]);
-  const username = parts[0];
-  if (!username || reserved.has(username.toLowerCase())) {
-    throw new Error("Kein Username im Link gefunden.");
-  }
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    throw new Error("Ungültiger Username.");
-  }
-  return username.toLowerCase();
+  throw new Error(
+    "Kurzlink konnte nicht aufgelöst werden. Bitte Username nutzen (z. B. philipphartmann).",
+  );
+}
+
+function usernameFromLetterboxdHref(href: string | null): string | null {
+  if (!href) return null;
+  const m = href.match(/letterboxd\.com\/([a-zA-Z0-9_]+)/i);
+  if (!m) return null;
+  const username = m[1].toLowerCase();
+  if (username === "film" || username === "films") return null;
+  return username;
 }
 
 async function fetchWithRetry(
   url: string,
   init: RequestInit = {},
-  attempts = 6,
+  attempts = 5,
 ): Promise<Response> {
   let lastError: Error | null = null;
 
@@ -125,29 +116,19 @@ async function fetchWithRetry(
     try {
       const res = await fetch(url, {
         ...init,
-        headers: {
-          ...headers(),
-          "sec-ch-ua":
-            '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-fetch-dest": "document",
-          "sec-fetch-mode": "navigate",
-          "sec-fetch-site": "same-origin",
-          ...(init.headers || {}),
-        },
+        headers: { ...headers(), ...(init.headers || {}) },
         cache: "no-store",
       });
 
       if (res.status === 429 || res.status === 503 || res.status === 403) {
         lastError = new Error(`Letterboxd ${res.status}`);
-        // Exponential backoff — Cloudflare cools down quickly if we wait.
-        await sleep(700 * 2 ** i);
+        await sleep(600 * 2 ** i);
         continue;
       }
       return res;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("Netzwerkfehler");
-      await sleep(500 * 2 ** i);
+      await sleep(400 * 2 ** i);
     }
   }
 
@@ -244,6 +225,10 @@ export async function fetchFilmsPage(
   username: string,
   page: number,
 ): Promise<{ films: FilmEntry[]; maxPage: number; username: string }> {
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    throw new Error("Ungültiger Username.");
+  }
+
   const path =
     page <= 1
       ? `https://letterboxd.com/${username}/films/`

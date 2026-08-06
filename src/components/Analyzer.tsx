@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { StatsReport } from "@/components/StatsReport";
 import { buildAnalysis, type AnalysisReport } from "@/lib/analysis";
 import type { EnrichedFilm, FilmEntry } from "@/lib/film";
+import { parseProfileInput } from "@/lib/parseProfileInput";
 
 type FilmsResponse = {
   films: FilmEntry[];
@@ -33,11 +34,36 @@ export function Analyzer() {
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<AnalysisReport | null>(null);
 
-  async function fetchFilmsPage(user: string, page: number) {
+  async function resolveToUsername(raw: string): Promise<string> {
+    const parsed = parseProfileInput(raw);
+    if (parsed.kind === "invalid") throw new Error(parsed.message);
+
+    if (parsed.kind === "username") {
+      return parsed.username;
+    }
+
+    // shortlink → server resolve (no URL() in the browser)
+    setStatus("Löse Kurzlink auf…");
+    const res = await fetch("/api/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input: parsed.href }),
+    });
+    const data = (await res.json()) as { username?: string; error?: string };
+    if (!res.ok || !data.username) {
+      throw new Error(
+        data.error ||
+          "Kurzlink fehlgeschlagen. Bitte Username eingeben (z. B. philipphartmann).",
+      );
+    }
+    return data.username;
+  }
+
+  async function fetchFilmsPage(username: string, page: number) {
     const res = await fetch("/api/films", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: user, page }),
+      body: JSON.stringify({ username, page }),
     });
     const data = (await res.json()) as FilmsResponse;
     if (!res.ok) {
@@ -46,15 +72,14 @@ export function Analyzer() {
     return data;
   }
 
-  async function loadAllFilms(inputValue: string) {
+  async function loadAllFilms(username: string) {
     setStatus("Lade Filmliste…");
-    const first = await fetchFilmsPage(inputValue, 1);
+    const first = await fetchFilmsPage(username, 1);
     const all = [...first.films];
-    const { username, maxPage, displayName } = first;
+    const { maxPage, displayName } = first;
 
     for (let page = 2; page <= maxPage; page++) {
       setStatus(`Lade Filmliste… Seite ${page} / ${maxPage}`);
-      // Sequential + small pause avoids Cloudflare blocks.
       await new Promise((r) => setTimeout(r, 350));
       const nextPage = await fetchFilmsPage(username, page);
       all.push(...nextPage.films);
@@ -76,7 +101,9 @@ export function Analyzer() {
     const slugs = films.map((f) => f.slug);
     for (let i = 0; i < slugs.length; i += ENRICH_BATCH) {
       const batch = slugs.slice(i, i + ENRICH_BATCH);
-      setStatus(`Lade Details… ${Math.min(i + batch.length, slugs.length)}/${slugs.length}`);
+      setStatus(
+        `Lade Details… ${Math.min(i + batch.length, slugs.length)}/${slugs.length}`,
+      );
 
       let attempt = 0;
       while (attempt < 4) {
@@ -99,11 +126,8 @@ export function Analyzer() {
           break;
         } catch (err) {
           attempt += 1;
-          if (attempt >= 4) {
-            console.error(err);
-          } else {
-            await new Promise((r) => setTimeout(r, 900 * attempt));
-          }
+          if (attempt >= 4) console.error(err);
+          else await new Promise((r) => setTimeout(r, 900 * attempt));
         }
       }
 
@@ -120,27 +144,23 @@ export function Analyzer() {
     setLoading(true);
 
     try {
-      const { username, displayName, films } = await loadAllFilms(input);
-      if (!films.length) throw new Error("Keine Filme in diesem Profil gefunden.");
-
-      const enriched = await enrichFilms(films);
-      const withMeta = enriched.filter(
-        (f) => f.genres.length > 0 || f.directors.length > 0,
-      ).length;
-
-      if (withMeta < films.length * 0.3) {
-        setStatus("Wenige Film-Details — Statistik wird mit verfügbaren Daten gebaut…");
+      const username = await resolveToUsername(input);
+      const { displayName, films } = await loadAllFilms(username);
+      if (!films.length) {
+        throw new Error("Keine Filme in diesem Profil gefunden.");
       }
 
+      const enriched = await enrichFilms(films);
       const analysis = buildAnalysis(username, displayName, enriched);
       setReport(analysis);
       setStatus("");
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Unbekannter Fehler";
-      const message = /expected pattern|invalid url|failed to construct/i.test(raw)
-        ? "Ungültiger Link. Bitte Username oder letterboxd.com-Link versuchen."
-        : raw;
-      setError(message);
+      setError(
+        /expected pattern|invalid url|failed to construct/i.test(raw)
+          ? "Link-Verarbeitung fehlgeschlagen. Bitte einfach den Username eingeben (z. B. philipphartmann)."
+          : raw,
+      );
       setStatus("");
     } finally {
       setLoading(false);
@@ -162,7 +182,7 @@ export function Analyzer() {
               spellCheck={false}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="https://letterboxd.com/name/ · boxd.it/… · username"
+              placeholder="philipphartmann  oder  letterboxd.com/philipphartmann"
               disabled={loading}
               required
             />
@@ -171,7 +191,8 @@ export function Analyzer() {
             </button>
           </div>
           <p className="hint">
-            Öffentliches Profil reicht — Link, Kurzlink oder Username.
+            Am zuverlässigsten: nur der Username. Kurzlinks (boxd.it) werden
+            serverseitig aufgelöst.
           </p>
         </form>
       )}
