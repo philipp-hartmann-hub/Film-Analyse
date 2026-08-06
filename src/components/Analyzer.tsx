@@ -6,22 +6,26 @@ import { buildAnalysis, type AnalysisReport } from "@/lib/analysis";
 import type { EnrichedFilm, FilmEntry } from "@/lib/film";
 
 type FilmsResponse = {
-  films: FilmEntry[];
+  films: Array<FilmEntry | EnrichedFilm>;
   maxPage: number;
   username: string;
   displayName?: string;
+  source?: "baked" | "rss";
+  scrapedAt?: string;
   error?: string;
 };
 
 export function Analyzer() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("philipphartmann");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<AnalysisReport | null>(null);
+  const [source, setSource] = useState<"baked" | "rss" | null>(null);
+  const [scrapedAt, setScrapedAt] = useState<string | undefined>();
 
   async function loadFilms(rawInput: string) {
-    setStatus("Lade Filmliste (RSS)…");
+    setStatus("Lade Filmliste…");
     const res = await fetch(
       `/api/films?username=${encodeURIComponent(rawInput)}`,
     );
@@ -36,24 +40,40 @@ export function Analyzer() {
     event.preventDefault();
     setError(null);
     setReport(null);
+    setSource(null);
+    setScrapedAt(undefined);
     setLoading(true);
 
     try {
-      const { username, displayName, films } = await loadFilms(input);
+      const data = await loadFilms(input);
+      const { username, displayName, films } = data;
       if (!films.length) {
-        throw new Error("Keine Einträge im Letterboxd-RSS gefunden.");
+        throw new Error("Keine Filme gefunden.");
       }
 
-      const enriched: EnrichedFilm[] = films.map((f) => ({
-        ...f,
-        genres: [],
-        directors: [],
-        description: "",
-      }));
+      const dataSource = data.source ?? "rss";
+      setSource(dataSource);
+      setScrapedAt(data.scrapedAt);
 
-      setReport(
-        buildAnalysis(username, displayName || username, enriched),
-      );
+      const enriched: EnrichedFilm[] = films.map((f) => {
+        const withDetails = f as EnrichedFilm;
+        if (dataSource === "baked") {
+          return {
+            ...f,
+            genres: withDetails.genres ?? [],
+            directors: withDetails.directors ?? [],
+            description: withDetails.description ?? "",
+          };
+        }
+        return {
+          ...f,
+          genres: [],
+          directors: [],
+          description: "",
+        };
+      });
+
+      setReport(buildAnalysis(username, displayName || username, enriched));
       setStatus("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unbekannter Fehler");
@@ -76,7 +96,7 @@ export function Analyzer() {
               spellCheck={false}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="philipphartmann oder https://letterboxd.com/philipphartmann/"
+              placeholder="philipphartmann"
               disabled={loading}
               required
             />
@@ -85,7 +105,8 @@ export function Analyzer() {
             </button>
           </div>
           <p className="hint">
-            Auswertung über den öffentlichen RSS-Feed (bis zu 100 Einträge).
+            Für <b>philipphartmann</b>: volle gebackene Bibliothek. Andere
+            Profile: RSS (Tagebuch, max. 100).
           </p>
         </form>
       )}
@@ -106,12 +127,18 @@ export function Analyzer() {
               onClick={() => {
                 setReport(null);
                 setError(null);
+                setSource(null);
               }}
             >
               Anderes Profil analysieren
             </button>
           </div>
-          <StatsReport report={report} rssLimited />
+          <StatsReport
+            report={report}
+            scrapedAt={scrapedAt}
+            rssLimited={source === "rss"}
+            bakedLibrary={source === "baked"}
+          />
         </>
       )}
     </div>

@@ -43,10 +43,12 @@ export function StatsReport({
   report,
   scrapedAt,
   rssLimited = false,
+  bakedLibrary = false,
 }: {
   report: AnalysisReport;
   scrapedAt?: string;
   rssLimited?: boolean;
+  bakedLibrary?: boolean;
 }) {
   const [histoReady, setHistoReady] = useState(false);
   useEffect(() => {
@@ -69,13 +71,21 @@ export function StatsReport({
 
   return (
     <div className="report">
+      {bakedLibrary && (
+        <p className="rss-banner">
+          <span className="rss-badge baked">Bibliothek</span>
+          Vollständige Auswertung aus der lokal gebackenen Filmliste (
+          <b>{report.totalFilms}</b> Filme inkl. Genres &amp; Regisseure).
+        </p>
+      )}
       {rssLimited && (
         <p className="rss-banner">
           <span className="rss-badge">RSS · max. 100</span>
-          Basierend auf deinen letzten{" "}
-          <b>{report.totalFilms}</b> Letterboxd-Einträgen
+          Basierend auf den letzten <b>{report.totalFilms}</b>{" "}
+          Tagebuch-Einträgen
           {report.totalFilms >= 100 ? " (Limit erreicht)" : ""}. Genre- und
-          Regie-Auswertung sind in dieser Version nicht verfügbar.
+          Regie-Auswertung sind hier nicht verfügbar — der RSS-Feed listet nur
+          geloggte Diary-Einträge, nicht die ganze Watch-Liste.
         </p>
       )}
 

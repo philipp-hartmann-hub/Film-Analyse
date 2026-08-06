@@ -204,6 +204,10 @@ body {
   padding: 4px 9px;
 }
 
+.rss-badge.baked {
+  background: var(--green);
+}
+
 .rss-banner b {
   color: var(--white);
   font-weight: 600;

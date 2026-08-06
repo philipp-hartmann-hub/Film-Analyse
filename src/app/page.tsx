@@ -14,7 +14,7 @@ export default function Home() {
         </div>
         <h1>Deine Letterboxd-Statistik</h1>
         <p className="sub">
-          Username eingeben — Auswertung über den öffentlichen RSS-Feed.{" "}
+          Für dein Profil die volle Bibliothek — sonst RSS-Tagebuch.{" "}
           <b>Ohne Pro-Abo.</b>
         </p>
       </header>
