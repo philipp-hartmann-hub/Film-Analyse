@@ -14,9 +14,9 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Film-Analyse — Letterboxd Stats",
+  title: "Outside the box — Letterboxd Stats",
   description:
-    "Kostenlose Auswertung deiner Letterboxd-Bibliothek: Ratings und Top-Genres.",
+    "Outside the box: kostenlose Auswertung deiner Letterboxd-Bibliothek — Ratings und Top-Genres ohne Pro.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
