@@ -1,28 +1,23 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
-});
-
-const sans = Manrope({
+const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "Outside the box — Letterboxd Stats",
+  title: "Outside the box — Letterboxd Statistik",
   description:
-    "Outside the box: kostenlose Auswertung deiner Letterboxd-Bibliothek — Ratings und Top-Genres ohne Pro.",
+    "Pro-ähnliche Letterboxd-Auswertung: Ratings, Genres, Regisseure, Franchises und Muster.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="de" className={`${display.variable} ${sans.variable} h-full`}>
-      <body className="min-h-full flex flex-col font-[family-name:var(--font-sans)] antialiased">
+    <html lang="de" className={`${sans.variable} h-full`}>
+      <body className="min-h-full font-[family-name:var(--font-sans)] antialiased">
         {children}
       </body>
     </html>

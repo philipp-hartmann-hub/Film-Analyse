@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  fetchDisplayName,
   fetchFilmsPage,
   resolveUsername,
 } from "@/lib/letterboxd";
@@ -15,7 +16,10 @@ export async function GET(request: NextRequest) {
     const username = await resolveUsername(input);
 
     const data = await fetchFilmsPage(username, page);
-    return NextResponse.json(data);
+    const displayName =
+      page === 1 ? await fetchDisplayName(username) : username;
+
+    return NextResponse.json({ ...data, displayName });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unbekannter Fehler";
