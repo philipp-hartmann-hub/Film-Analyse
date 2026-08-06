@@ -1,20 +1,17 @@
 # Outside the box
 
-Letterboxd-Statistik im Pro-Stil: Ratings, Jahrzehnte, Genres, Regisseur, Franchises, Fünf-Sterne-Liste und roter Faden.
+Letterboxd-Statistik im Pro-Stil.
 
 ## Nutzung
 
-Profil-Link, `boxd.it`-Kurzlink oder Username eingeben.
+Username oder `https://letterboxd.com/deinname/` eingeben.
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Deploy
+## Technik
 
-Vercel · Framework Next.js · keine Env-Vars nötig.
-
-## Hinweis
-
-Nutzt öffentliche Letterboxd-Seiten. Bei Cloudflare-Blocks kurz warten und erneut versuchen.
+- Datenpipeline wie in der ersten funktionierenden Version: `GET /api/films` + `POST /api/genres`
+- UI wie der Letterboxd-Statistik-Report (Kacheln, Histogramme, Regisseur, These)

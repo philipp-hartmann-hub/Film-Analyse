@@ -1,31 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchDisplayName, fetchFilmsPage } from "@/lib/letterboxd";
+import {
+  fetchDisplayName,
+  fetchFilmsPage,
+  parseUsername,
+} from "@/lib/letterboxd";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-/**
- * Films API — accepts ONLY a plain username (like the early working version).
- * Resolve links via /api/resolve first.
- */
-export async function POST(request: NextRequest) {
+/** Original working endpoint: GET + parseUsername on the server. */
+export async function GET(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
-      username?: string;
-      page?: number | string;
-    };
-    const username = (body.username ?? "").trim().toLowerCase();
-    const page = Math.max(1, Number(body.page) || 1);
-
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return NextResponse.json(
-        {
-          error:
-            "Bitte zuerst den Link auflösen oder nur den Username senden (z. B. philipphartmann).",
-        },
-        { status: 400 },
-      );
-    }
+    const input = request.nextUrl.searchParams.get("username") ?? "";
+    const pageParam = request.nextUrl.searchParams.get("page") ?? "1";
+    const page = Math.max(1, Number(pageParam) || 1);
+    const username = parseUsername(input);
 
     const data = await fetchFilmsPage(username, page);
     const displayName =

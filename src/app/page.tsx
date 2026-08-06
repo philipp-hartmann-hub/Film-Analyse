@@ -14,7 +14,7 @@ export default function Home() {
         </div>
         <h1>Deine Letterboxd-Statistik</h1>
         <p className="sub">
-          Profil-Link eingeben — Bewertungen, Genres, Regisseure und das Muster
+          Username eingeben — Bewertungen, Genres, Regisseure und das Muster
           dahinter. <b>Ohne Pro-Abo.</b>
         </p>
       </header>
