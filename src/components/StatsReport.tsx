@@ -42,9 +42,11 @@ function Bars({ items }: { items: BarItem[] }) {
 export function StatsReport({
   report,
   scrapedAt,
+  rssLimited = false,
 }: {
   report: AnalysisReport;
   scrapedAt?: string;
+  rssLimited?: boolean;
 }) {
   const [histoReady, setHistoReady] = useState(false);
   useEffect(() => {
@@ -67,6 +69,13 @@ export function StatsReport({
 
   return (
     <div className="report">
+      {rssLimited && (
+        <p className="rss-banner">
+          Basierend auf deinen letzten ~50 Letterboxd-Einträgen. Genre- und
+          Regie-Auswertung sind in dieser Version nicht verfügbar.
+        </p>
+      )}
+
       <header className="report-header">
         <div className="eyebrow">
           <Dots /> Pro · Deine Statistik

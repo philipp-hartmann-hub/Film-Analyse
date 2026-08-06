@@ -152,6 +152,42 @@ export async function fetchFilmsPage(
   return { films, maxPage: Math.max(maxPage, page), username };
 }
 
+/** Public diary RSS — works from datacenter IPs; last ~50 entries, no genres. */
+export async function fetchFilmsViaRss(username: string): Promise<FilmEntry[]> {
+  const xml = await fetchHtml(`https://letterboxd.com/${username}/rss/`);
+  const $ = cheerio.load(xml, { xmlMode: true });
+  const films: FilmEntry[] = [];
+  const seen = new Set<string>();
+
+  $("item").each((_, el) => {
+    const item = $(el);
+    const title =
+      item.find("letterboxd\\:filmTitle").first().text().trim() ||
+      item.find("filmTitle").first().text().trim();
+    const yearRaw =
+      item.find("letterboxd\\:filmYear").first().text().trim() ||
+      item.find("filmYear").first().text().trim();
+    const ratingRaw =
+      item.find("letterboxd\\:memberRating").first().text().trim() ||
+      item.find("memberRating").first().text().trim();
+    const link = item.find("link").first().text().trim();
+
+    const slugMatch = link.match(/\/film\/([^/]+)\/?/);
+    const slug = slugMatch?.[1] ?? null;
+    if (!slug || !title || seen.has(slug)) return;
+    seen.add(slug);
+
+    const year =
+      yearRaw && /^\d{4}$/.test(yearRaw) ? Number(yearRaw) : null;
+    const ratingNum = ratingRaw ? Number(ratingRaw) : NaN;
+    const rating = Number.isFinite(ratingNum) ? ratingNum : null;
+
+    films.push({ slug, title, year, rating });
+  });
+
+  return films;
+}
+
 export function parseFilmDetails(html: string): {
   genres: string[];
   directors: string[];

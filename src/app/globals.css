@@ -176,6 +176,17 @@ body {
   font-size: 13px;
 }
 
+.rss-banner {
+  margin: 22px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--grey);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
 .status {
   margin-top: 18px;
   color: var(--grey);
