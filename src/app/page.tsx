@@ -1,6 +1,21 @@
-import { Analyzer } from "@/components/Analyzer";
+import { StatsReport } from "@/components/StatsReport";
+import { ProfileNote } from "@/components/ProfileNote";
+import { buildAnalysis } from "@/lib/analysis";
+import type { EnrichedFilm } from "@/lib/film";
+import data from "@/data/letterboxd.json";
+
+type LetterboxdDump = {
+  username: string;
+  displayName: string;
+  scrapedAt: string;
+  films: EnrichedFilm[];
+};
+
+const dump = data as LetterboxdDump;
 
 export default function Home() {
+  const report = buildAnalysis(dump.username, dump.displayName, dump.films);
+
   return (
     <main className="page">
       <header className="landing-header">
@@ -14,12 +29,13 @@ export default function Home() {
         </div>
         <h1>Deine Letterboxd-Statistik</h1>
         <p className="sub">
-          Username eingeben — Bewertungen, Genres, Regisseure und das Muster
-          dahinter. <b>Ohne Pro-Abo.</b>
+          Statische Auswertung von <b>{dump.displayName}</b> — ohne Live-Scrape,
+          ohne Pro-Abo.
         </p>
       </header>
 
-      <Analyzer />
+      <ProfileNote bakedUsername={dump.username} displayName={dump.displayName} />
+      <StatsReport report={report} scrapedAt={dump.scrapedAt} />
     </main>
   );
 }

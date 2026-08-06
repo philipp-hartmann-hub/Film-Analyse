@@ -39,7 +39,13 @@ function Bars({ items }: { items: BarItem[] }) {
   );
 }
 
-export function StatsReport({ report }: { report: AnalysisReport }) {
+export function StatsReport({
+  report,
+  scrapedAt,
+}: {
+  report: AnalysisReport;
+  scrapedAt?: string;
+}) {
   const [histoReady, setHistoReady] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setHistoReady(true));
@@ -245,6 +251,16 @@ export function StatsReport({ report }: { report: AnalysisReport }) {
       </section>
 
       <footer className="report-footer">
+        {scrapedAt && (
+          <>
+            Datenstand:{" "}
+            {new Date(scrapedAt).toLocaleString("de-DE", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+            <br />
+          </>
+        )}
         Auswertung aus dem öffentlichen Profil auf{" "}
         <a
           href={`https://letterboxd.com/${report.username}/`}

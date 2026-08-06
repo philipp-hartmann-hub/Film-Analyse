@@ -1,0 +1,1067 @@
+{
+  "username": "philipphartmann",
+  "displayName": "Philipp Hartmann",
+  "scrapedAt": "2026-08-06T16:10:23.394Z",
+  "films": [
+    {
+      "slug": "the-odyssey-2026",
+      "title": "The Odyssey",
+      "year": 2026,
+      "rating": 4.5,
+      "genres": [
+        "Adventure",
+        "Action",
+        "Fantasy"
+      ],
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "voicemails-for-isabelle",
+      "title": "Voicemails for Isabelle",
+      "year": 2026,
+      "rating": 3.5,
+      "genres": [
+        "Comedy",
+        "Romance",
+        "Drama"
+      ],
+      "directors": [
+        "Leah McKendrick"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-devil-wears-prada-2",
+      "title": "The Devil Wears Prada 2",
+      "year": 2026,
+      "rating": 3.5,
+      "genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "directors": [
+        "David Frankel"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-physician-ii",
+      "title": "The Physician II",
+      "year": 2025,
+      "rating": 3,
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Mystery"
+      ],
+      "directors": [
+        "Philipp Stölzl"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "conclave",
+      "title": "Conclave",
+      "year": 2024,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "Thriller"
+      ],
+      "directors": [
+        "Edward Berger"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "inside-out-2-2024",
+      "title": "Inside Out 2",
+      "year": 2024,
+      "rating": 3,
+      "genres": [
+        "Comedy",
+        "Family",
+        "Adventure",
+        "Animation"
+      ],
+      "directors": [
+        "Kelsey Mann"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "napoleon-2023",
+      "title": "Napoleon",
+      "year": 2023,
+      "rating": 4,
+      "genres": [
+        "History",
+        "War",
+        "Drama"
+      ],
+      "directors": [
+        "Ridley Scott"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "love-at-first-sight-2023",
+      "title": "Love at First Sight",
+      "year": 2023,
+      "rating": 3.5,
+      "genres": [
+        "Romance",
+        "Drama"
+      ],
+      "directors": [
+        "Vanessa Caswill"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "oppenheimer-2023",
+      "title": "Oppenheimer",
+      "year": 2023,
+      "rating": 5,
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "barbie",
+      "title": "Barbie",
+      "year": 2023,
+      "rating": 3.5,
+      "genres": [
+        "Comedy",
+        "Fantasy",
+        "Adventure"
+      ],
+      "directors": [
+        "Greta Gerwig"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "anatomy-of-a-fall",
+      "title": "Anatomy of a Fall",
+      "year": 2023,
+      "rating": 5,
+      "genres": [
+        "Crime",
+        "Thriller",
+        "Mystery"
+      ],
+      "directors": [
+        "Justine Triet"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "glass-onion",
+      "title": "Glass Onion",
+      "year": 2022,
+      "rating": 3.5,
+      "genres": [
+        "Crime",
+        "Mystery",
+        "Comedy"
+      ],
+      "directors": [
+        "Rian Johnson"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "serial-bad-weddings-3",
+      "title": "Serial (Bad) Weddings 3",
+      "year": 2021,
+      "rating": 3,
+      "genres": [
+        "Romance",
+        "Comedy"
+      ],
+      "directors": [
+        "Philippe de Chauveron"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "munich-the-edge-of-war",
+      "title": "Munich – The Edge of War",
+      "year": 2021,
+      "rating": 4,
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "directors": [
+        "Christian Schwochow"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "no-time-to-die-2021",
+      "title": "No Time to Die",
+      "year": 2021,
+      "rating": 3,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "directors": [
+        "Cary Joji Fukunaga"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "knives-out-2019",
+      "title": "Knives Out",
+      "year": 2019,
+      "rating": 4,
+      "genres": [
+        "Mystery",
+        "Comedy",
+        "Crime"
+      ],
+      "directors": [
+        "Rian Johnson"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "avengers-endgame",
+      "title": "Avengers: Endgame",
+      "year": 2019,
+      "rating": 3.5,
+      "genres": [
+        "Science Fiction",
+        "Action",
+        "Adventure"
+      ],
+      "directors": [
+        "Anthony Russo",
+        "Joe Russo"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-collini-case",
+      "title": "The Collini Case",
+      "year": 2019,
+      "rating": 5,
+      "genres": [
+        "Drama",
+        "Thriller"
+      ],
+      "directors": [
+        "Marco Kreuzpaintner"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "serial-bad-weddings-2",
+      "title": "Serial (Bad) Weddings 2",
+      "year": 2019,
+      "rating": 3.5,
+      "genres": [
+        "Comedy"
+      ],
+      "directors": [
+        "Philippe de Chauveron"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "brexit-the-uncivil-war",
+      "title": "Brexit: The Uncivil War",
+      "year": 2019,
+      "rating": 5,
+      "genres": [
+        "Drama",
+        "History",
+        "TV Movie"
+      ],
+      "directors": [
+        "Toby Haynes"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "vice-2018",
+      "title": "Vice",
+      "year": 2018,
+      "rating": 4,
+      "genres": [
+        "Drama",
+        "Comedy"
+      ],
+      "directors": [
+        "Adam McKay"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "how-about-adolf",
+      "title": "How About Adolf?",
+      "year": 2018,
+      "rating": 3.5,
+      "genres": [
+        "Comedy"
+      ],
+      "directors": [
+        "Sönke Wortmann"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-front-runner",
+      "title": "The Front Runner",
+      "year": 2018,
+      "rating": 3,
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "directors": [
+        "Jason Reitman"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "incredibles-2",
+      "title": "Incredibles 2",
+      "year": 2018,
+      "rating": 4,
+      "genres": [
+        "Family",
+        "Action",
+        "Animation",
+        "Adventure"
+      ],
+      "directors": [
+        "Brad Bird"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "solo-a-star-wars-story",
+      "title": "Solo: A Star Wars Story",
+      "year": 2018,
+      "rating": 3,
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "Ron Howard"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "avengers-infinity-war",
+      "title": "Avengers: Infinity War",
+      "year": 2018,
+      "rating": 4,
+      "genres": [
+        "Action",
+        "Science Fiction",
+        "Adventure"
+      ],
+      "directors": [
+        "Anthony Russo",
+        "Joe Russo"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-death-of-stalin",
+      "title": "The Death of Stalin",
+      "year": 2017,
+      "rating": 3.5,
+      "genres": [
+        "Drama",
+        "Comedy",
+        "History"
+      ],
+      "directors": [
+        "Armando Iannucci"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "darkest-hour",
+      "title": "Darkest Hour",
+      "year": 2017,
+      "rating": 5,
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "directors": [
+        "Joe Wright"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "dunkirk-2017",
+      "title": "Dunkirk",
+      "year": 2017,
+      "rating": 4.5,
+      "genres": [
+        "Action",
+        "Drama",
+        "War"
+      ],
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "rogue-one-a-star-wars-story",
+      "title": "Rogue One: A Star Wars Story",
+      "year": 2016,
+      "rating": 5,
+      "genres": [
+        "Adventure",
+        "Action",
+        "Science Fiction"
+      ],
+      "directors": [
+        "Gareth Edwards"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "hidden-figures",
+      "title": "Hidden Figures",
+      "year": 2016,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "directors": [
+        "Theodore Melfi"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "miss-sloane",
+      "title": "Miss Sloane",
+      "year": 2016,
+      "rating": 5,
+      "genres": [
+        "Thriller",
+        "Crime",
+        "Drama"
+      ],
+      "directors": [
+        "John Madden"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-verdict-2016",
+      "title": "The Verdict",
+      "year": 2016,
+      "rating": 4,
+      "genres": [
+        "TV Movie"
+      ],
+      "directors": [
+        "Lars Kraume"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "inferno-2016",
+      "title": "Inferno",
+      "year": 2016,
+      "rating": 3.5,
+      "genres": [
+        "Thriller",
+        "Mystery",
+        "Action"
+      ],
+      "directors": [
+        "Ron Howard"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "lbj-2016",
+      "title": "LBJ",
+      "year": 2016,
+      "rating": 4,
+      "genres": [
+        "History",
+        "Drama"
+      ],
+      "directors": [
+        "Rob Reiner"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "captain-america-civil-war",
+      "title": "Captain America: Civil War",
+      "year": 2016,
+      "rating": 4,
+      "genres": [
+        "Adventure",
+        "Action",
+        "Science Fiction"
+      ],
+      "directors": [
+        "Joe Russo",
+        "Anthony Russo"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "spectre-2015",
+      "title": "Spectre",
+      "year": 2015,
+      "rating": 3.5,
+      "genres": [
+        "Action",
+        "Thriller",
+        "Adventure"
+      ],
+      "directors": [
+        "Sam Mendes"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-martian",
+      "title": "The Martian",
+      "year": 2015,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "Science Fiction",
+        "Adventure"
+      ],
+      "directors": [
+        "Ridley Scott"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "inside-out-2015",
+      "title": "Inside Out",
+      "year": 2015,
+      "rating": 4,
+      "genres": [
+        "Animation",
+        "Adventure",
+        "Comedy",
+        "Family",
+        "Drama"
+      ],
+      "directors": [
+        "Pete Docter"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "interstellar",
+      "title": "Interstellar",
+      "year": 2014,
+      "rating": 5,
+      "genres": [
+        "Science Fiction",
+        "Drama",
+        "Adventure"
+      ],
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "serial-bad-weddings",
+      "title": "Serial (Bad) Weddings",
+      "year": 2014,
+      "rating": 4,
+      "genres": [
+        "Comedy"
+      ],
+      "directors": [
+        "Philippe de Chauveron"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "captain-america-the-winter-soldier",
+      "title": "Captain America: The Winter Soldier",
+      "year": 2014,
+      "rating": 4.5,
+      "genres": [
+        "Adventure",
+        "Science Fiction",
+        "Action"
+      ],
+      "directors": [
+        "Joe Russo",
+        "Anthony Russo"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-physician",
+      "title": "The Physician",
+      "year": 2013,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "Adventure",
+        "History"
+      ],
+      "directors": [
+        "Philipp Stölzl"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-wolf-of-wall-street",
+      "title": "The Wolf of Wall Street",
+      "year": 2013,
+      "rating": 4,
+      "genres": [
+        "Comedy",
+        "Drama",
+        "Crime"
+      ],
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "white-house-down",
+      "title": "White House Down",
+      "year": 2013,
+      "rating": 3.5,
+      "genres": [
+        "Action",
+        "Drama",
+        "Thriller"
+      ],
+      "directors": [
+        "Roland Emmerich"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "skyfall",
+      "title": "Skyfall",
+      "year": 2012,
+      "rating": 4.5,
+      "genres": [
+        "Adventure",
+        "Thriller",
+        "Action"
+      ],
+      "directors": [
+        "Sam Mendes"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-perks-of-being-a-wallflower",
+      "title": "The Perks of Being a Wallflower",
+      "year": 2012,
+      "rating": 4.5,
+      "genres": [
+        "Drama"
+      ],
+      "directors": [
+        "Stephen Chbosky"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "game-change",
+      "title": "Game Change",
+      "year": 2012,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "History",
+        "TV Movie",
+        "Comedy"
+      ],
+      "directors": [
+        "Jay Roach"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "real-steel",
+      "title": "Real Steel",
+      "year": 2011,
+      "rating": 4.5,
+      "genres": [
+        "Drama",
+        "Action",
+        "Science Fiction"
+      ],
+      "directors": [
+        "Shawn Levy"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-deathly-hallows-part-2",
+      "title": "Harry Potter and the Deathly Hallows: Part 2",
+      "year": 2011,
+      "rating": 4,
+      "genres": [
+        "Fantasy",
+        "Adventure"
+      ],
+      "directors": [
+        "David Yates"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "too-big-to-fail",
+      "title": "Too Big to Fail",
+      "year": 2011,
+      "rating": 4.5,
+      "genres": [
+        "TV Movie",
+        "History",
+        "Drama"
+      ],
+      "directors": [
+        "Curtis Hanson"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-deathly-hallows-part-1",
+      "title": "Harry Potter and the Deathly Hallows: Part 1",
+      "year": 2010,
+      "rating": 3.5,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "David Yates"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "inception",
+      "title": "Inception",
+      "year": 2010,
+      "rating": 4.5,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "how-to-train-your-dragon",
+      "title": "How to Train Your Dragon",
+      "year": 2010,
+      "rating": 4.5,
+      "genres": [
+        "Fantasy",
+        "Family",
+        "Adventure",
+        "Animation"
+      ],
+      "directors": [
+        "Dean DeBlois",
+        "Chris Sanders"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-half-blood-prince",
+      "title": "Harry Potter and the Half-Blood Prince",
+      "year": 2009,
+      "rating": 3.5,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "David Yates"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "inglourious-basterds",
+      "title": "Inglourious Basterds",
+      "year": 2009,
+      "rating": 3.5,
+      "genres": [
+        "War",
+        "Drama",
+        "Thriller"
+      ],
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "angels-demons",
+      "title": "Angels & Demons",
+      "year": 2009,
+      "rating": 4,
+      "genres": [
+        "Thriller",
+        "Mystery"
+      ],
+      "directors": [
+        "Ron Howard"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "mamma-mia",
+      "title": "Mamma Mia!",
+      "year": 2008,
+      "rating": 3.5,
+      "genres": [
+        "Comedy",
+        "Romance"
+      ],
+      "directors": [
+        "Phyllida Lloyd"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "kung-fu-panda",
+      "title": "Kung Fu Panda",
+      "year": 2008,
+      "rating": 4.5,
+      "genres": [
+        "Comedy",
+        "Family",
+        "Animation",
+        "Action"
+      ],
+      "directors": [
+        "Mark Osborne",
+        "John Stevenson"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-order-of-the-phoenix",
+      "title": "Harry Potter and the Order of the Phoenix",
+      "year": 2007,
+      "rating": 3,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "David Yates"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-devil-wears-prada",
+      "title": "The Devil Wears Prada",
+      "year": 2006,
+      "rating": 4,
+      "genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "directors": [
+        "David Frankel"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-da-vinci-code",
+      "title": "The Da Vinci Code",
+      "year": 2006,
+      "rating": 3.5,
+      "genres": [
+        "Mystery",
+        "Thriller"
+      ],
+      "directors": [
+        "Ron Howard"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-goblet-of-fire",
+      "title": "Harry Potter and the Goblet of Fire",
+      "year": 2005,
+      "rating": 3.5,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "Mike Newell"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "star-wars-episode-iii-revenge-of-the-sith",
+      "title": "Star Wars: Episode III – Revenge of the Sith",
+      "year": 2005,
+      "rating": 4.5,
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "George Lucas"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "the-incredibles",
+      "title": "The Incredibles",
+      "year": 2004,
+      "rating": 4,
+      "genres": [
+        "Animation",
+        "Family",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "Brad Bird"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-prisoner-of-azkaban",
+      "title": "Harry Potter and the Prisoner of Azkaban",
+      "year": 2004,
+      "rating": 3.5,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "Alfonso Cuarón"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-chamber-of-secrets",
+      "title": "Harry Potter and the Chamber of Secrets",
+      "year": 2002,
+      "rating": 3,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "Chris Columbus"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "star-wars-episode-ii-attack-of-the-clones",
+      "title": "Star Wars: Episode II – Attack of the Clones",
+      "year": 2002,
+      "rating": 4,
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "George Lucas"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "harry-potter-and-the-philosophers-stone",
+      "title": "Harry Potter and the Philosopher's Stone",
+      "year": 2001,
+      "rating": 3,
+      "genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "directors": [
+        "Chris Columbus"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "star-wars-episode-i-the-phantom-menace",
+      "title": "Star Wars: Episode I – The Phantom Menace",
+      "year": 1999,
+      "rating": 4,
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "George Lucas"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "tomorrow-never-dies",
+      "title": "Tomorrow Never Dies",
+      "year": 1997,
+      "rating": 4,
+      "genres": [
+        "Action",
+        "Thriller",
+        "Adventure"
+      ],
+      "directors": [
+        "Roger Spottiswoode"
+      ],
+      "description": ""
+    },
+    {
+      "slug": "return-of-the-jedi",
+      "title": "Return of the Jedi",
+      "year": 1983,
+      "rating": 3.5,
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "directors": [
+        "Richard Marquand"
+      ],
+      "description": ""
+    }
+  ]
+}
