@@ -85,7 +85,7 @@ export function Analyzer() {
             </button>
           </div>
           <p className="hint">
-            Auswertung über den öffentlichen RSS-Feed (letzte Einträge).
+            Auswertung über den öffentlichen RSS-Feed (bis zu 100 Einträge).
           </p>
         </form>
       )}

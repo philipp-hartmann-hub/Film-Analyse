@@ -152,7 +152,7 @@ export async function fetchFilmsPage(
   return { films, maxPage: Math.max(maxPage, page), username };
 }
 
-/** Public diary RSS — works from datacenter IPs; last ~50 entries, no genres. */
+/** Public diary RSS — works from datacenter IPs; up to ~100 entries, no genres. */
 export async function fetchFilmsViaRss(username: string): Promise<FilmEntry[]> {
   const xml = await fetchHtml(`https://letterboxd.com/${username}/rss/`);
   const $ = cheerio.load(xml, { xmlMode: true });
@@ -160,6 +160,8 @@ export async function fetchFilmsViaRss(username: string): Promise<FilmEntry[]> {
   const seen = new Set<string>();
 
   $("item").each((_, el) => {
+    if (films.length >= 100) return false;
+
     const item = $(el);
     const title =
       item.find("letterboxd\\:filmTitle").first().text().trim() ||

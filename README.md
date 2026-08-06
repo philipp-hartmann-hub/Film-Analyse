@@ -13,5 +13,5 @@ Username oder `https://letterboxd.com/deinname/` eingeben.
 
 ## Grenzen
 
-- Nur die letzten ~50 Tagebuch-Einträge aus dem RSS
+- Bis zu **100** Tagebuch-Einträge aus dem RSS (Letterboxd-Limit)
 - Keine Genre-/Regie-Anreicherung (Filmseiten werden auf Vercel geblockt)

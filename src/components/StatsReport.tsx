@@ -71,7 +71,10 @@ export function StatsReport({
     <div className="report">
       {rssLimited && (
         <p className="rss-banner">
-          Basierend auf deinen letzten ~50 Letterboxd-Einträgen. Genre- und
+          <span className="rss-badge">RSS · max. 100</span>
+          Basierend auf deinen letzten{" "}
+          <b>{report.totalFilms}</b> Letterboxd-Einträgen
+          {report.totalFilms >= 100 ? " (Limit erreicht)" : ""}. Genre- und
           Regie-Auswertung sind in dieser Version nicht verfügbar.
         </p>
       )}
