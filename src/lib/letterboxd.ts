@@ -1,5 +1,6 @@
 import "server-only";
 import * as cheerio from "cheerio";
+import { getCachedFilmDetails, setCachedFilmDetails } from "@/lib/cache";
 import type { FilmEntry } from "@/lib/film";
 
 export type { FilmEntry, EnrichedFilm } from "@/lib/film";
@@ -53,8 +54,13 @@ export function parseUsername(input: string): string {
 }
 
 async function fetchHtml(url: string): Promise<string> {
-  const res = await fetch(url, {
-    headers: headers(),
+  const scraperKey = process.env.SCRAPER_API_KEY;
+  const requestUrl = scraperKey
+    ? `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(url)}`
+    : url;
+
+  const res = await fetch(requestUrl, {
+    headers: scraperKey ? undefined : headers(),
     cache: "no-store",
   });
 
@@ -227,8 +233,13 @@ export async function fetchFilmGenres(slug: string): Promise<string[]> {
 }
 
 export async function fetchFilmDetails(slug: string) {
+  const cached = await getCachedFilmDetails(slug);
+  if (cached) return cached;
+
   const html = await fetchHtml(`https://letterboxd.com/film/${slug}/`);
-  return parseFilmDetails(html);
+  const details = parseFilmDetails(html);
+  await setCachedFilmDetails(slug, details);
+  return details;
 }
 
 export async function fetchDisplayName(username: string): Promise<string> {
